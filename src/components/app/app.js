@@ -1,51 +1,38 @@
-import React, { Component } from 'react';
-import Header from '../header';
-import RandomPlanet from '../random-planet';
-import PersonDetailes from '../person-details';
-import ItemList from '../item-list';
+import React, { Component } from "react";
+import Header from "../header";
+import RandomPlanet from "../random-planet";
 
-import './app.css';
+import "./app.css";
+import { PeoplePage, PlanetPage, StarshipPage } from "../pages";
+import SwapiService from "../../services/swapi-service";
+import { SwapiServiceProvider } from "../swapi-service-context";
+import ErrorBoundry from "../error-boundry";
 
 export default class App extends Component {
-    state = {
-        showRandomPlanet: true,
-        selectedPerson: null
-    }
-    toggleRandomPlanet = () => {
-        this.setState((state) => {
-            return {
-                showRandomPlanet: !state.showRandomPlanet
-            }
-        })
-    }
-    onPersonSelected = (id) => {
-        this.setState({
-            selectedPerson: id
-        })
-    }
-    render() {
-        const planet = this.state.showRandomPlanet ?
-            <RandomPlanet /> : null;
-        return (
-            <div>
-                <Header />
-                {planet}
-                <button
-                    className="toggle-planet btn btn-warning btn-lg"
-                    onClick={this.toggleRandomPlanet}>
-                    Toggle Random planet
-                </button>
-                <div className="row mb2">
-                    <div className="col-md-6">
-                        <ItemList onItemselected={this.onItemselected} />
-                    </div>
+  state = {
+    showRandomPlanet: true,
+    swapiService: new SwapiService(),
+  };
+  /*onServiceChange = () => {
+    this.setState(({ swapiService }) => {
+      const Service =
+        swapiService instanceof SwapiService ? DummySwapiService : SwapiService;
+      console.log("switched to", Service.name);
+      return { swapiService: new Service() };
+    });
+  };*/
 
-                    <div className="col-md-6">
-                        <PersonDetailes personId={this.state.selectedPerson} />
-                    </div>
-                </div>
-            </div >
-        )
-    }
-
-};
+  render() {
+    return (
+      <ErrorBoundry>
+        <SwapiServiceProvider value={this.state.swapiService}>
+          <Header onServiceChange={this.onServiceChanges} />
+          <RandomPlanet />
+          <PeoplePage />
+          <PlanetPage />
+          <StarshipPage />
+        </SwapiServiceProvider>
+      </ErrorBoundry>
+    );
+  }
+}
